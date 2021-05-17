@@ -1,4 +1,4 @@
-# :green_book: Covid Data Analysis #
+# :pill: Covid Data Analysis #
 Analyzing KPIs in Covid-19 cases
 
 ## Dataset ##
