@@ -21,7 +21,7 @@ Where location like '%states%'
 order by 1,2
 
 -- Looking at the Total cases vs population (porcentage the population that got covid)
-Select Location, date, total_cases, population, (total_deaths/population)*100 as PercentagePopulationInfected
+Select Location, date, total_cases, population, (total_cases/population)*100 as PercentagePopulationInfected
 From CovidProject..CovidDeaths
 --Where location like '%states%'
 order by 1,2
