@@ -29,7 +29,7 @@ FROM CovidDeaths
 GROUP BY location
 ORDER BY 1,2 
 
- -- Let's look at the Total cases vs population (porcentage the population that got covid)
+ -- Let's look at the Total cases vs population (percentage the population that got covid)
 SELECT  Location
        ,date
        ,total_cases
@@ -53,46 +53,42 @@ ORDER BY Percentage_Infected DESC
 SELECT  location
        ,MAX(cast(total_deaths AS UNSIGNED)) AS TotalDeathCount
 FROM CovidDeaths
-WHERE continent is not null 
+--WHERE continent is not null 
+WHERE continent <> '' AND continent <> 'NULL'
 GROUP BY  location
 ORDER BY TotalDeathCount desc
 
--- BREAKING THINGS DOWN BY CONTINENT
+-- Continents with the highest death count per population
+SELECT  continent
+       ,MAX(cast(Total_deaths AS UNSIGNED)) AS TotalDeathCount
+FROM CovidDeaths
+WHERE continent <> '' AND continent <> 'NULL'
+GROUP BY  continent
+ORDER BY TotalDeathCount desc
 
--- Showing continents with the highest death count per population
-
-Select continent, MAX(cast(Total_deaths as int)) as TotalDeathCount
-From PortfolioProject..CovidDeaths
---Where location like '%states%'
-Where continent is not null 
-Group by continent
-order by TotalDeathCount desc
-
-
-
--- GLOBAL NUMBERS
-
-Select SUM(new_cases) as total_cases, SUM(cast(new_deaths as int)) as total_deaths, SUM(cast(new_deaths as int))/SUM(New_Cases)*100 as DeathPercentage
-From PortfolioProject..CovidDeaths
---Where location like '%states%'
-where continent is not null 
---Group By date
-order by 1,2
-
-
+-- Global Cases, Deaths and Percentage of Deaths
+SELECT  SUM(new_cases)                                  AS total_cases
+       ,SUM(cast(new_deaths                AS SIGNED)) AS total_deaths
+       ,SUM(cast(new_deaths AS SIGNED))/SUM(New_Cases)*100 AS DeathPercentage
+FROM CovidDeaths
+WHERE continent <> '' AND continent <> 'NULL'
+ORDER BY 1,2 
 
 -- Total Population vs Vaccinations
--- Shows Percentage of Population that has recieved at least one Covid Vaccine
-
-Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
-, SUM(CONVERT(int,vac.new_vaccinations)) OVER (Partition by dea.Location Order by dea.location, dea.Date) as RollingPeopleVaccinated
---, (RollingPeopleVaccinated/population)*100
-From PortfolioProject..CovidDeaths dea
-Join PortfolioProject..CovidVaccinations vac
-	On dea.location = vac.location
-	and dea.date = vac.date
-where dea.continent is not null 
-order by 2,3
+-- Shows Percentage of Population that has received at least one Covid Vaccine
+SELECT  D.continent
+       ,D.location
+       ,D.date
+       ,D.population
+       ,V.new_vaccinations 
+       ,SUM(CAST(V.new_vaccinations AS SIGNED)) 
+       OVER (Partition by D.Location ORDER BY D.location,dea.Date) AS RollingPeopleVaccinated 
+--        ,(RollingPeopleVaccinated/population)*100
+FROM CovidDeaths D
+JOIN CovidVaccinations V
+ON D.location = V.location AND D.date = V.date
+WHERE D.continent is not null
+ORDER BY 2,3 
 
 
 -- Using CTE to perform Calculation on Partition By in previous query
