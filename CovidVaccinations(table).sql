@@ -1,4 +1,8 @@
 CREATE TABLE CovidVaccionations ( 
+	iso_code nvarchar(255) NULL,
+	continent nvarchar(255) NULL,
+	location nvarchar(255) NULL,
+	date datetime NULL,
 	new_tests varchar(255) NULL,
 	total_tests varchar(255) NULL,
 	total_tests_per_thousand VARCHAR(255) NULL,
