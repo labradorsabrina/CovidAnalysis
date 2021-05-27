@@ -11,6 +11,7 @@ FROM CovidDeaths
 WHERE continent not IN ('', 'NULL')
 ORDER BY 1,2;
 
+
 -- Just a comparing with "The World" numbers
 -- both are extremely close so we'll keep the first option 
 -- The Second includes "International" Location
