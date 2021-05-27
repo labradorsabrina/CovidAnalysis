@@ -2,9 +2,7 @@
 Queries used for Tableau Visualization 
 */
 
-
-
--- 1. 
+-- 1. Total Cases, Total deaths and Percentage of total death vs total new cases
 SELECT  SUM(new_cases)                                  AS total_cases
        ,SUM(cast(new_deaths                    AS SIGNED)) AS total_deaths
        ,SUM(cast(new_deaths AS SIGNED))/SUM(New_Cases)*100 AS DeathPercentage
@@ -13,9 +11,9 @@ FROM CovidDeaths
 WHERE continent not IN ('', 'NULL')
 ORDER BY 1,2;
 
--- Just a double check based off the data provided
--- numbers are extremely close so we will keep them 
--- The Second includes "International"  Location
+-- Just a comparing with "The World" numbers
+-- both are extremely close so we'll keep the first option 
+-- The Second includes "International" Location
 
 --Select SUM(new_cases) as total_cases, 
 --SUM(cast(new_deaths as int)) as total_deaths, 
@@ -30,18 +28,16 @@ ORDER BY 1,2;
 SELECT  continent
        ,SUM(cast(new_deaths AS SIGNED)) AS TotalDeathCount
 FROM CovidDeaths
-WHERE continent not IN ('', 'NULL')
-AND location not IN ('World', 'European Union', 'International') 
+WHERE continent not IN ('', 'NULL', 'World', 'European Union', 'International')
 GROUP BY  continent
 ORDER BY TotalDeathCount desc;
 
--- 3. Death count per country
 
+-- 3. Death count per country
 SELECT  location
        ,SUM(cast(new_deaths AS SIGNED)) AS TotalDeathCount
 FROM CovidDeaths
-WHERE continent not IN ('', 'NULL')
-AND location not IN ('World', 'European Union', 'International') 
+WHERE continent not IN ('', 'NULL', 'World', 'European Union', 'International')
 GROUP BY  location
 ORDER BY TotalDeathCount desc;
 
@@ -65,10 +61,6 @@ SELECT  Location
        ,IFNULL(((total_cases/population)*100), 0) AS PercentPopulationInfected
 FROM CovidDeaths
 ORDER BY PercentPopulationInfected desc;
-
-
--- Queries I originally had, but excluded some because it created too long of video
--- Here only in case you want to check them out
 
 
 -- 6. Percentage of population that receive at least one vaccine
@@ -99,28 +91,35 @@ SELECT  continent,
 FROM ViewRollingVaccinated;
 
 
-
--- 5.
-
---Select Location, date, total_cases,total_deaths, (total_deaths/total_cases)*100 as DeathPercentage
---From PortfolioProject..CovidDeaths
-----Where location like '%states%'
---where continent is not null 
---order by 1,2
-
--- took the above query and added population
-Select Location, date, population, total_cases, total_deaths
-From PortfolioProject..CovidDeaths
+-- 7. Total cases, Total Deaths, Percentage of deaths per cases (per country)
+SELECT  location
+        ,SUM(total_cases) AS total_cases
+       ,SUM(cast(new_deaths AS SIGNED)) AS total_deaths
+       ,IFNULL((SUM(cast(new_deaths AS SIGNED))/SUM(total_cases))*100, 0) AS deaths_per_cases
+FROM CovidDeaths 
 --Where location like '%states%'
-where continent is not null 
-order by 1,2
+WHERE continent not IN ('', 'NULL')
+GROUP BY location
+ORDER BY deaths_per_cases DESC;
 
 
-
--- 7. 
-
-Select Location, Population,date, MAX(total_cases) as HighestInfectionCount,  Max((total_cases/population))*100 as PercentPopulationInfected
-From PortfolioProject..CovidDeaths
+-- 8. Total Deaths and Percentage of deaths per population (per country)
+SELECT  location
+       ,SUM(cast(new_deaths AS SIGNED)) AS total_deaths
+       ,IFNULL((SUM(cast(new_deaths AS SIGNED))/MAX(population))*100, 0) AS deaths_per_population
+FROM CovidDeaths 
 --Where location like '%states%'
-Group by Location, Population, date
-order by PercentPopulationInfected desc
+WHERE continent not IN ('', 'NULL')
+GROUP BY location
+ORDER BY deaths_per_population DESC;
+
+
+-- 9. Total Deaths and Percentage of deaths per population (per continent)
+SELECT  continent
+       ,SUM(cast(new_deaths AS SIGNED)) AS total_deaths
+       ,IFNULL((SUM(cast(new_deaths AS SIGNED))/MAX(population))*100, 0) AS deaths_per_population
+FROM CovidDeaths 
+--Where location like '%states%'
+WHERE continent not IN ('', 'NULL', 'World', 'European Union', 'International')
+GROUP BY continent
+ORDER BY deaths_per_population DESC;
